@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: rancher
+    type: metadata
+  name: rancher-metadata
+  # namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: rancher
+        type: agent
+    spec:
+      containers:
+      - name: metadata
+        args:
+        - start.sh
+        - rancher-metadata
+        - -subscribe
+        env:
+        - name: CATTLE_URL
+          value: http://52.41.23.7:31313/v2-beta
+        - name: CATTLE_ACCESS_KEY
+          value: ADA05F16A39AAF53BB7A
+        - name: CATTLE_SECRET_KEY
+          value: zdLsbNQ6DMjecA3TBmMjS1nn6QkbY6G4ii2GqErT
+        image: rancher/metadata:v0.7.4
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN

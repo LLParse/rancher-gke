@@ -1,0 +1,80 @@
+# rancher-agent fails with this error:
+# 2017-06-16T23:14:08.278226649Z Error: No such image or container: rancher-agent
+# 
+# The _pod container_ is rancher-agent-hq351
+# The _rancher-agent container_ is k8s_rancher-agent.1e90c121_rancher-agent-llc91_kube-system_baf2cd7e-52ec-11e7-90c4-02f0efd601e5_d1e5412a
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: rancher
+    type: agent
+  name: rancher-agent
+  # namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: rancher
+        type: agent
+    spec:
+      containers:
+      - name: agent
+        args:
+        - run
+        command:
+        - /run.sh
+        env:
+        - name: CATTLE_URL
+          value: http://52.41.23.7:31313/v2-beta
+        - name: CATTLE_ACCESS_KEY
+          value: ADA05F16A39AAF53BB7A
+        - name: CATTLE_SECRET_KEY
+          value: zdLsbNQ6DMjecA3TBmMjS1nn6QkbY6G4ii2GqErT
+        - name: CATTLE_AGENT_PIDNS
+          value: host
+        - name: RANCHER_AGENT_IMAGE
+          value: rancher/agent:v1.2.2
+        image: rancher/agent:v1.2.2
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: rancher
+          mountPath: /var/lib/rancher
+        - name: rancher-storage
+          mountPath: /var/run/rancher/storage
+        - name: rancher-agent-state
+          mountPath: /var/lib/cattle
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+        - name: lib-modules
+          mountPath: /lib/modules
+          readOnly: true
+        - name: proc
+          mountPath: /host/proc
+        - name: dev
+          mountPath: /host/dev
+      hostNetwork: true
+      hostPID: true
+      volumes:
+      - name: rancher
+        hostPath:
+          path: /var/lib/rancher
+      - name: rancher-storage
+        hostPath:
+          path: /var/run/rancher/storage
+      - name: rancher-agent-state
+        hostPath:
+          path: /var/lib/cattle
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: dev
+        hostPath:
+          path: /dev
